@@ -4,7 +4,9 @@
 <head>
     <meta charset="utf-8">
     <title></title>
- <link rel="stylesheet" href="https://latex.now.sh/style.css">
+    <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+
     <style>
         body {
             overflow: clip;
@@ -107,14 +109,26 @@
             margin-top: 0;
         }
 
+        h2 {
+          font-size: 32px;
+          white-space: nowrap;
+          margin-bottom: 10px;
+        }
+
         .header {
           width: 100vw;
-          background-color: #333;
-            padding: 50px;
+          font-family: 'Lato', sans-serif;
+          background-color: #444;
+          padding: 14px;
           margin-top: 0;
           color: #FFF;
           box-shadow: 1px 2px 2px #CCC;
           justify-content: center;
+        }
+        .header a {
+          text-decoration: none;
+          color: #FFF;
+          font-style: italic;
         }
         body {
           margin: 0;
@@ -127,10 +141,11 @@
         }
         .header-info {
           display: flex;
-          justify-content: space-around;
+          font-size: 14px;
+          justify-content: space-between;
         }
         .header-info p {
-          width: 50%;
+          width: 32%;
           text-align: left;
         }
     </style>
@@ -147,11 +162,12 @@
 <body>
     <div class="header">
       <div class="header-contents">
-        <h2>Air Missions by US & Allies in North & South Vietnam by Latitude</h2>
+        <h2>Air Missions by US & Allies in Vietnam by Latitude</h2>
         <div class="header-info">
-          <p>All missions with target coordinates in North &amp; South Vietnam from 1966 to 1973
+          <p>All missions with target coordinates in North &amp; South Vietnam from 1966 to 1973, agreggated by month, grouped by latitude to nearest multiple of 0.5.
           </p>
-          <p style="text-align: right;">Data from THOR on https://data.world/datamil/vietnam-war-thor-data</p>
+          <p style="text-align: right;">Data from THOR on <a href="https://data.world/datamil/vietnam-war-thor-data">data.world/datamil/vietnam-war-thor-data</a>. All source code, including data processing, can be found
+          at <a href="https://github.com/markmarkoh/vietnam-war-by-latitude">github.com/markmarkoh/vietnam-war-by-latitude</a>.</p>
         </div>
       </div>
     </div>
