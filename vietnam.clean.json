@@ -710,16 +710,6 @@
         {
           "type": "Point",
           "properties": {
-            "name": "Ninh Binh"
-          },
-          "coordinates": [
-            5292,
-            3050
-          ]
-        },
-        {
-          "type": "Point",
-          "properties": {
             "name": "Viet Tri"
           },
           "coordinates": [
@@ -735,16 +725,6 @@
           "coordinates": [
             5279,
             2650
-          ]
-        },
-        {
-          "type": "Point",
-          "properties": {
-            "name": "Da Lat"
-          },
-          "coordinates": [
-            5691,
-            1314
           ]
         },
         {
@@ -815,26 +795,6 @@
           "coordinates": [
             5147,
             915
-          ]
-        },
-        {
-          "type": "Point",
-          "properties": {
-            "name": "Bac Lieu"
-          },
-          "coordinates": [
-            5250,
-            761
-          ]
-        },
-        {
-          "type": "Point",
-          "properties": {
-            "name": "Soc Trang"
-          },
-          "coordinates": [
-            5293,
-            829
           ]
         },
         {

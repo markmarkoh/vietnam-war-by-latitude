@@ -1,360 +1,326 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title></title>
-<style>
-body {
-  overflow: clip;
-}
-#svg {
-  width: 100vw;
-  height: 100vh;
-  justify-content: center;
-  display: flex;
-}
+    <meta charset="utf-8">
+    <title></title>
+ <link rel="stylesheet" href="https://latex.now.sh/style.css">
+    <style>
+        body {
+            overflow: clip;
+        }
+        
+        #svg {
+            margin: 0 auto;
+            height: 100vh;
+            width: 1200px;
+            position: relative;
+        }
 
-.ridge-container:nth-child(odd) .ridge {
-    fill: #5ca3c1;
-}
-.ridge-container:nth-child(even) .ridge {
-    fill: #448cab;
-}
+        .shadow {
+          -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+          filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+        }
+        
+        .ridge-container:nth-child(odd) .ridge {
+            fill: #5ca3c1;
+            fill: #d7301f;
+            fill: #74a9cf;
+        }
+        
+        .ridge-container:nth-child(even) .ridge {
+            fill: #448cab;
+            fill: #fc8d59;
+            fill: #0570b0;
+        }
+        
+        .ridge {
+            stroke: #DDD;
+        }
+        
+        .subunit.VNM {
+            fill: #dcd;
+            -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+            filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+        }
+        
+        .subunit.CHI {
+            display: none;
+        }
+        
+        .subunit.CHH {
+            display: none;
+        }
+        
+        .subunit.LAO {
+            fill: #ddc;
+        }
+        
+        .subunit.KHM {
+            fill: #cdc;
+        }
+        
+        .subunit.THA {
+            fill: #fff;
+            fill: hsl(210, 20%, 98%);
+        }
+        
+        .subunit-boundary {
+            fill: none;
+            stroke: #777;
+            stroke: none;
+            stroke-dasharray: 2, 2;
+            stroke-linejoin: round;
+        }
+        
+        .subunit-boundary.external {
+            stroke: none;
+        }
+        /*    Place labels*/
+        
+        .place,
+        .place-label {
+            fill: #444;
+        }
+        
+        text {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 10px;
+            pointer-events: none;
+        }
+        /*    country labels*/
+        
+        .subunit-label {
+            fill: #777;
+            fill-opacity: .5;
+            font-size: 30px;
+            font-weight: 300;
+            text-anchor: middle;
+        }
+        
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            text-align: center;
+            margin-top: 0;
+        }
 
-.ridge {
-  stroke: #DDD;
-}
-</style>
-<style>
-
-/* CSS goes here. */
-/*    color for the whole country*/
-    .subunit.VNM { fill: #dcd; }
-/*    somehow China's hainan island has its own id*/
-    .subunit.CHI { display: none; }
-    .subunit.CHH { display: none; }
-    .subunit.LAO { fill: #ddc; }
-    .subunit.KHM { fill: #cdc; }
-    .subunit.THA { fill: #fff; }
-
-/*    color for boundary*/
-    .subunit-boundary {
-        fill: none;
-        stroke: #777;
-        stroke-dasharray: 2,2;
-        stroke-linejoin: round;
-    }
-    .subunit-boundary.external {
-        stroke: rgba(0, 0, 0, 0.2);
-    }
-
-/*    Place labels*/
-    .place,
-    .place-label {
-      fill: #444;
-    }
-
-    text {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 10px;
-      pointer-events: none;
-    }
-    
-/*    country labels*/
-    .subunit-label {
-      fill: #777;
-      fill-opacity: .5;
-      font-size: 30px;
-      font-weight: 300;
-      text-anchor: middle;
-    }
-</style>
-</style>
-  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="//d3js.org/topojson.v1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3-geo@3"></script>
-
+        .header {
+          width: 100vw;
+          background-color: #333;
+            padding: 50px;
+          margin-top: 0;
+          color: #FFF;
+          box-shadow: 1px 2px 2px #CCC;
+          justify-content: center;
+        }
+        body {
+          margin: 0;
+          padding: 0;
+          max-width: inherit !important;
+        }
+        .header-contents {
+          width: 53%;
+          margin: 0 auto;
+        }
+        .header-info {
+          display: flex;
+          justify-content: space-around;
+        }
+        .header-info p {
+          width: 50%;
+          text-align: left;
+        }
+    </style>
 </head>
+
+</html>
+</style>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-geo@3"></script>
+</head>
+
 <body>
-  <div id="svg"></div>
-<script>
-
-    var width = 960,
-        height = window.innerHeight;
-
-    var svg = d3.select("#svg");
-    
-    
-//    visualize the map data
-    var visualize = function(mapdata, projection){
-        // 1. convert the TopoJSON format to GeoJSON format
-        var subunits = topojson.feature(mapdata, mapdata.objects.subunits);
-        
-        // 3. generate path for the shapes
-        var path = d3.geoPath()
-            .projection(projection);
-        
-          // Graticules, just don't work. too busy.
-        /*
-          var lines = svg.selectAll('path.graticule').data([1]);
-          lines.enter().append('path').classed('graticule', true).attr('d', d => {
-            return path(d3.geoGraticule().stepMinor([5,5])())
-          }).style('fill', 'none').style('stroke', '#444').style('stroke-dasharray', '1 0 1')
-          lines.exit().remove();
- */
-
-        // 4. display countries
-        // subunits.features encode the country
-        svg.selectAll(".subunit")
-            .data(subunits.features)
-            .enter().append("path")
-            .attr("class", function(d) { return "subunit " + d.id; })
-            .attr("d", path);
-        
-        // draw boundary internal
-        svg.append("path")
-            .datum(topojson.mesh(mapdata, mapdata.objects.subunits, function(a, b) { return a.id !== b.id; }))
-            .attr("d", path)
-            .attr("class", "subunit-boundary");
-        // draw external boundary of uncolor countries
-        svg.append("path")
-            .datum(topojson.mesh(mapdata, mapdata.objects.subunits, function(a, b) { 
-                return a.id === b.id && (a.id ==="THA" || a.id ==="CHI" || a.id ==="CHH"); 
-             }))
-            .attr("d", path)
-            .attr("class", "subunit-boundary external");
-        
-        
-        // 5. display places and their labels
-        svg.append("path")
-            .datum(topojson.feature(mapdata, mapdata.objects.places))
-            .attr("d", path)
-            .attr("class", "place");
-        
-        // label
-        svg.selectAll(".place-label")
-            .data(topojson.feature(mapdata, mapdata.objects.places).features)
-            .enter().append("text")
-            .attr("class", "place-label")
-            .attr("transform", function(d) { return "translate(" + projection(d.geometry.coordinates) + ")"; })
-            .attr("dy", ".35em")
-            .text(function(d) { return d.properties.name; });
-
-        // positioning of labels
-        svg.selectAll(".place-label")
-            .attr("x", function(d) { return d.geometry.coordinates[0] > -1 ? 6 : -6; })
-            .style("text-anchor", function(d) { return d.geometry.coordinates[0] > -1 ? "start" : "end"; });
+    <div class="header">
+      <div class="header-contents">
+        <h2>Air Missions by US & Allies in North & South Vietnam by Latitude</h2>
+        <div class="header-info">
+          <p>All missions with target coordinates in North &amp; South Vietnam from 1966 to 1973
+          </p>
+          <p style="text-align: right;">Data from THOR on https://data.world/datamil/vietnam-war-thor-data</p>
+        </div>
+      </div>
+    </div>
+    <div id="svg"></div>
+    <script>
+        var width = 960,
+            height = window.innerHeight;
 
 
 
+        function drawMap(mapdata, projection) {
+            var subunits = topojson.feature(mapdata, mapdata.objects.subunits);
 
-        // 6. display country labels
-        /*svg.selectAll(".subunit-label")
-            .data(topojson.feature(mapdata, mapdata.objects.subunits).features)
-            .enter().append("text")
-            .attr("class", function(d) { return "subunit-label " + d.id; })
-            .attr("transform", function(d) { 
-                var centroid = path.centroid(d),
-                    x = centroid[0],
-                    y = centroid[1];
-                // manually adjust positions of countries' labels
-                if (d.id === "VNM"){
-                    x += 150;
-                    y += 120;
-                }
-                if (d.id === "LAO"){
-                    x -= 70;
-                    y -= 100;
-                }
-                if (d.id === "CHI"){
-                    x = 500;
-                    y = 50;
-                }
-                return "translate(" + x+","+y + ")"; 
-            })
-            .attr("dy", ".35em")
-            .text(function(d) { return d.properties.name; });*/
-    };
+            var path = d3.geoPath().projection(projection);
 
-</script>
-<script>
-  var svg = d3
-    .select('#svg')
-    .append("svg")
-    .attr("width", "100%")
-    .attr("height", "1000")
-    .attr("id", "svg-container")
-    .style("position", "absolute")
-    .style("z-index", 2);
+            const svg = d3.select('svg').append('g').classed('map', true);
 
-  _data().then(async data => {
-      window.data = data;
-      const mapdata = await d3.json('vietnam.clean.json')
-      const projection = d3.geoAlbers()
-          .center([114, 4.4])
-          .rotate([2, 32])
-          .parallels([11, 20])
-          .scale(2700)
-          .translate([width / 3.5, height / 2]);
+            svg.selectAll(".subunit").data(subunits.features).enter().append("path").attr("class", function(d) {
+                return "subunit " + d.id;
+            }).attr("d", path);
 
-      render(projection);
-      visualize(mapdata, projection);
-    })
-  function render(projection) {
-    const margin = _margin();
-    const width = _width();
-    const height = _height();
-    const overlap = _overlap();
-    const x = _x(margin, width);
-    const y = _ygeo(margin, height, projection);
-    const z = _z(overlap, y);
-    const xAxis = _xAxis(height, margin, x, width, projection);
-    const yAxis = _yAxis(margin, y, projection);
-    const area = _area(x, z);
-    const line = _line(area);
-    _chart(d3, xAxis, yAxis, y, area, line);
-  }
+            svg.append("path").datum(topojson.mesh(mapdata, mapdata.objects.subunits, function(a, b) {
+                return a.id !== b.id;
+            })).attr("d", path).attr("class", "subunit-boundary");
 
+            svg.append("path").datum(topojson.mesh(mapdata, mapdata.objects.subunits, function(a, b) {
+                return a.id === b.id && (a.id === "THA" || a.id === "CHI" || a.id === "CHH");
+            })).attr("d", path).attr("class", "subunit-boundary external");
 
- function _chart(d3,xAxis,yAxis,y,area,line)
-{
-  const svg = d3.select("#svg-container");
+            svg.append("path").datum(topojson.feature(mapdata, mapdata.objects.places)).attr("d", path).attr("class", "place");
 
-  svg.append("g")
-      .call(xAxis);
+            svg.selectAll(".place-label").data(topojson.feature(mapdata, mapdata.objects.places).features).enter().append("text").attr("class", "place-label").attr("transform", function(d) {
+                return "translate(" + projection(d.geometry.coordinates) + ")";
+            }).attr("dy", ".35em").text(function(d) {
+                return d.properties.name;
+            });
 
-  svg.append("g")
-      .call(yAxis);
+            svg.selectAll(".place-label").attr("x", function(d) {
+                return d.geometry.coordinates[0] > -1 ? 6 : -6;
+            }).style("text-anchor", function(d) {
+                return d.geometry.coordinates[0] > -1 ? "start" : "end";
+            });
+
+        };
+    </script>
+    <script>
+        var svg = d3.select('#svg').append("svg").attr("width", "100%").attr("height", "1000").attr("id", "svg-container").style("position", "absolute").style("z-index", 2);
+
+        _data().then(async data => {
+            window.data = data;
+            const mapdata = await d3.json('vietnam.clean.json')
+            const projection = d3.geoAlbers().center([112, 2.4]).rotate([2, 32]).parallels([11, 20]).scale(2700).translate([
+                width / 3.5,
+                height / 2
+            ]);
+
+            render(projection);
+            drawMap(mapdata, projection);
+        })
+
+        function render(projection) {
+            const margin = ({
+                top: 40,
+                right: 20,
+                bottom: 30,
+                left: 175
+            });
+            const width = 800;
+            const height = data.series.length * 25;
+            const overlap = 8;
+            const x = _x(margin, width);
+            const y = _ygeo(margin, height, projection);
+            const z = _z(overlap, y);
+            const xAxis = _xAxis(height, margin, x, width, projection);
+            const yAxis = _yAxis(margin, y, projection);
+            const area = _area(x, z);
+            const line = _line(area);
+            _chart(d3, xAxis, yAxis, y, area, line);
+        }
 
 
-  const group = svg.append("g")
-    .selectAll("g")
-    .data(data.series)
-    .join("g")
-      .classed("ridge-container", true)
-      .attr("transform", d => `translate(300,${y(d.lat) + 1})`);
+        function _chart(d3, xAxis, yAxis, y, area, line) {
+            const svg = d3.select("#svg-container");
 
-  group.append("path")
-      .attr("fill", "#ddd")
-      .attr("fill-opacity", 0.8)
-      .classed("ridge", true)
-      .attr("d", d => area(d.values));
+            svg.append("g").call(xAxis);
 
-  group.append("path")
-      .attr("fill", "none")
-      .attr("d", d => line(d.values));
+            svg.append("g").call(yAxis);
 
-  return svg.node();
-}
+            const group = svg.append("g").selectAll("g").data(data.series).join("g").classed("ridge-container", true).attr(
+                "transform",
+                d => `translate(325,${y(d.lat) + 1})`
+            );
 
+            group.append("path").attr("fill", "#ddd").attr("fill-opacity", 0.8).classed("ridge", true).attr("d", d => area(d.values));
 
-function _overlap(){return(
-8
-)}
+            group.append("path").attr("fill", "none").attr("d", d => line(d.values));
+        }
 
-function _height(){return(
-data.series.length * 25
-)}
+        function _x(margin, width) {
+            return (d3.scaleTime().domain(d3.extent(data.dates)).range([
+                margin.left,
+                width - margin.right
+            ]))
+        }
 
-function _width() {
-    return document.querySelector('#svg').clientWidth / 1.4;
-  }
+        function _y(margin, height) {
+            return (d3.scalePoint().domain(data.series.map(d => d.lat)).range([
+                0, //margin.top,
+                500 // height - margin.bottom
+            ]))
+        }
 
-function _margin(){return(
-{top: 40, right: 20, bottom: 30, left: 120}
-)}
-
-function _x(margin,width){return(
-d3.scaleTime()
-    .domain(d3.extent(data.dates))
-    .range([margin.left, width - margin.right])
-)}
-
-function _y(margin,height){return(
-d3.scalePoint()
-    .domain(data.series.map(d => d.lat))
-    .range([margin.top, height - margin.bottom])
-)}
-
-function _ygeo(margin, height, projection) {
-  return function(lat) {
-    return projection([114, lat])[1];
-  }
-}
+        function _ygeo(margin, height, projection) {
+            return function(lat) {
+                return projection([114, lat])[1];
+            }
+        }
 
 
-function _z(overlap,y){
-    return(
-d3.scaleLinear()
-    .domain([0, d3.max(data.series, d => d3.max(d.values))]).nice()
-    .range([0, -overlap * 23.3])
-)}
+        function _z(overlap, y) {
+                console.log(d3.max(data.series, d => d3.max(d.values)))
+            return (d3.scaleLinear().domain([
+                0, d3.max(data.series, d => d3.max(d.values))
+            ]).nice().range([
+                0,  -overlap * 23.3
+            ]))
+        }
 
-function _xAxis(height,margin,x,width, projection){return(
-g => g
-  .attr("transform", `translate(300,${projection([114, 8])[1]})`)
-  .call(d3.axisBottom(x)
-      .ticks(width / 80)
-      .tickSizeOuter(0))
-)}
+        function _xAxis(height, margin, x, width, projection) {
+            return (g => g.attr("transform", `translate(325,${projection([114, 8])[1]})`).call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0)))
+        }
 
-function _yAxis(margin, y, projection) {
-    return g => {
-          g.selectAll('.grat')
-          .data(data.series.map(d => d.lat))
-          .enter()
-            .append('line')
-            .attr('class', 'grat')
-            .style('stroke', '#DDD')
-            .style('stroke-dasharray', '2 0 2')
-            .attr('x1', d => 200)
-            .attr('y1', d => projection([114, d])[1])
-            .attr('x2', d => 425)
-            .attr('y2', d => projection([114, d])[1])
-        g.selectAll('.yax')
-          .data(data.series.map(d => d.lat).filter((d,i) => i % 4 == 0))
-          .enter()
-            .append('text')
-              .attr("class", "yax")
-              .attr("x", d => 400) 
-              .attr("y", d => projection([114, d])[1] - 2)
-              .style("font-family", "mono")
-              .text(d => `${d}°N`);
+        function _yAxis(margin, y, projection) {
+            return g => {
+                g.selectAll('.grat').data(data.series.map(d => d.lat)).enter().append('line').attr('class', 'grat').style('stroke', '#DDD').style('stroke-dasharray', '2 0 2').attr('x1', d => 250).attr('y1', d => projection([114, d])[1]).attr('x2', d => margin.left + 325).attr('y2', d => projection([114, d])[1])
+                g.selectAll('.yax').data(data.series.map(d => d.lat).filter((d, i) => i % 4 == 0)).enter().append('text').attr("class", "yax").attr("x", d => 460).attr("y", d => projection([114, d])[1] - 2).style("font-family", "mono").text(d => `${d}°N`);
+            }
+        }
 
+        function _area(x, z) {
+            return (d3.area().curve(d3.curveBasis).defined(d => !isNaN(d)).x((d, i) => x(data.dates[i])).y0(0).y1(d => z(d)))
+        }
 
-      }
-}
+        function _line(area) {
+            return (area.lineY1())
+        }
 
-function _area(x,z){return(
-d3.area()
-    .curve(d3.curveBasis)
-    .defined(d => !isNaN(d))
-    .x((d, i) => x(data.dates[i]))
-    .y0(0)
-    .y1(d => z(d))
-)}
-
-function _line(area){return(
-area.lineY1()
-)}
-
-async function _data() {
-    const data = await d3.csv("thor_grouped_month_ns.csv", d3.autoType);
-    const dates = Array.from(d3.group(data, d => +d.month).keys()).sort(d3.ascending).filter(d => d < 120960000000)
-    console.log(dates);
-    return {
-      dates: dates.map(d => new Date(d)),
-      series: d3.groups(data, d => d.lat).map(([lat, values]) => {
-        if (lat < 8.1 || lat >= 23) return null;
-        const value = new Map(values.map(d => [+d.month, d.n]));
-        return {lat, values: dates.map(d => value.get(d) || 0)};
-      }).filter(s => !!s).sort((a,b) => b.lat - a.lat)
-    };
-}
-
-
-
-</script>
+        async function _data() {
+            const data = await d3.csv("thor_grouped_month_ns.csv", d3.autoType);
+            const dates = Array.from(d3.group(data, d => +d.month).keys()).sort(d3.ascending)//.filter(d => d < 120960000000)
+            return {
+                dates: dates.map(d => new Date(d)),
+                series: d3.groups(data, d => d.lat).map(
+                    ([lat, values]) => {
+                        if (lat < 8.1 || lat >= 23) {
+                            return null;
+                        }
+                        const value = new Map(values.map(d => [+d.month, d.n]));
+                        return {
+                            lat,
+                            values: dates.map(d => value.get(d) || 0)
+                        };
+                    }
+                ).filter(s => !!s).sort(
+                    (a, b) => b.lat - a.lat
+                )
+            };
+        }
+    </script>
 </body>
+
 </html>
